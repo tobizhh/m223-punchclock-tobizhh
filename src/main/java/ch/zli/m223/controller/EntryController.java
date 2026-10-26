@@ -4,9 +4,12 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
@@ -35,7 +38,23 @@ public class EntryController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Creates a new entry.", description = "Creates a new entry and returns the newly added entry.")
     public Entry create(Entry entry) {
-       return entryService.createEntry(entry);
+        return entryService.createEntry(entry);
+    }
+
+    @PUT
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Updates an entry.", description = "Updates the entry with the given id and returns the updated entry. Returns 404 if it does not exist.")
+    public Entry update(@PathParam("id") Long id, Entry entry) {
+        return entryService.updateEntry(id, entry);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Operation(summary = "Deletes an entry.", description = "Deletes the entry with the given id. Returns 404 if it does not exist.")
+    public void delete(@PathParam("id") Long id) {
+        entryService.deleteEntry(id);
     }
 
 }
