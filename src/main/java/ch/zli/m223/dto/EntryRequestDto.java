@@ -10,10 +10,6 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import ch.zli.m223.model.Entry;
-
-/**
- * Data the client sends to create or update an entry.
- */
 public record EntryRequestDto(
     @NotNull(message = "checkIn is required.") LocalDateTime checkIn,
     @NotNull(message = "checkOut is required.") LocalDateTime checkOut) {
