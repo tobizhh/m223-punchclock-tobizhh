@@ -37,4 +37,5 @@ public class EntryResourceTest {
              .body("[0].id", is(id.intValue()))
              .body("[0].checkIn", is("2026-09-29T08:00:00"))
              .body("[0].checkOut", is("2026-09-29T17:00:00"));
+            }
 }
