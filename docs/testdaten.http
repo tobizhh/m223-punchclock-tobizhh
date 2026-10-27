@@ -1,0 +1,99 @@
+### Testdaten für Punchclock
+### Ausführen mit VS Code "REST Client" oder dem HTTP-Client von IntelliJ, Requests von oben nach unten.
+### Zuerst Kategorien und Tags, danach Entries mit deren IDs.
+
+@baseUrl = http://localhost:8080
+
+### Kategorie "Projekt"
+# @name categoryProjekt
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{"title": "Projekt"}
+
+### Kategorie "Schule"
+# @name categorySchule
+POST {{baseUrl}}/categories
+Content-Type: application/json
+
+{"title": "Schule"}
+
+### Tag "Meeting"
+# @name tagMeeting
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{"title": "Meeting"}
+
+### Tag "Remote"
+# @name tagRemote
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{"title": "Remote"}
+
+### Tag "Überstunden"
+# @name tagUeberstunden
+POST {{baseUrl}}/tags
+Content-Type: application/json
+
+{"title": "Überstunden"}
+
+### Entry mit Kategorie und zwei Tags
+# @name entry1
+POST {{baseUrl}}/entries
+Content-Type: application/json
+
+{
+  "checkIn": "2026-10-26T08:00:00",
+  "checkOut": "2026-10-26T12:00:00",
+  "categoryId": {{categoryProjekt.response.body.id}},
+  "tagIds": [{{tagMeeting.response.body.id}}, {{tagRemote.response.body.id}}]
+}
+
+### Entry mit Kategorie und einem Tag
+# @name entry2
+POST {{baseUrl}}/entries
+Content-Type: application/json
+
+{
+  "checkIn": "2026-10-26T13:00:00",
+  "checkOut": "2026-10-26T19:00:00",
+  "categoryId": {{categorySchule.response.body.id}},
+  "tagIds": [{{tagUeberstunden.response.body.id}}]
+}
+
+### Entry ohne Kategorie und ohne Tags
+# @name entry3
+POST {{baseUrl}}/entries
+Content-Type: application/json
+
+{
+  "checkIn": "2026-10-27T08:00:00",
+  "checkOut": "2026-10-27T11:30:00"
+}
+
+### Alle Entries (nur IDs von Kategorie und Tags)
+GET {{baseUrl}}/entries
+
+### Alle Entries mit Details
+GET {{baseUrl}}/entry-details
+
+### Ein Entry mit Details
+GET {{baseUrl}}/entry-details/{{entry1.response.body.id}}
+
+### Entry ohne Kategorie und Tags: category = null, tags = []
+GET {{baseUrl}}/entry-details/{{entry3.response.body.id}}
+
+### Nicht vorhandener Entry: 404
+GET {{baseUrl}}/entry-details/999999
+
+### Unbekannte Kategorie beim Erfassen: 404
+POST {{baseUrl}}/entries
+Content-Type: application/json
+
+{
+  "checkIn": "2026-10-27T08:00:00",
+  "checkOut": "2026-10-27T09:00:00",
+  "categoryId": 999999
+}

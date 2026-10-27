@@ -42,7 +42,7 @@ public class EntryController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Creates a new entry.", description = "Creates a new entry and returns the newly added entry.")
     public EntryResponseDto create(@Valid EntryRequestDto entryDto) {
-        return EntryResponseDto.fromEntity(entryService.createEntry(entryDto.toEntity()));
+        return EntryResponseDto.fromEntity(entryService.createEntry(entryDto.toEntity(), entryDto.categoryId(), entryDto.tagIds()));
     }
 
     @PUT
@@ -51,7 +51,7 @@ public class EntryController {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Updates an entry.", description = "Updates the entry with the given id and returns the updated entry. Returns 404 if it does not exist.")
     public EntryResponseDto update(@PathParam("id") Long id, @Valid EntryRequestDto entryDto) {
-        return EntryResponseDto.fromEntity(entryService.updateEntry(id, entryDto.toEntity()));
+        return EntryResponseDto.fromEntity(entryService.updateEntry(id, entryDto.toEntity(), entryDto.categoryId(), entryDto.tagIds()));
     }
 
     @DELETE
