@@ -15,11 +15,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import ch.zli.m223.dto.EntryRequestDto;
 import ch.zli.m223.dto.EntryResponseDto;
 import ch.zli.m223.service.EntryService;
+import io.quarkus.security.identity.SecurityIdentity;
 
 @Path("/entries")
 @Tag(name = "Entries", description = "Handling of entries")
@@ -27,6 +29,9 @@ public class EntryController {
 
     @Inject
     EntryService entryService;
+
+    @Inject
+    SecurityIdentity identity;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -40,9 +45,11 @@ public class EntryController {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(summary = "Creates a new entry.", description = "Creates a new entry and returns the newly added entry.")
+    @Operation(summary = "Creates a new entry.", description = "Creates a new entry and returns the newly added entry. If a valid Authorization header is sent, the entry is assigned to that user.")
+    @SecurityRequirement(name = "BearerAuth")
     public EntryResponseDto create(@Valid EntryRequestDto entryDto) {
-        return EntryResponseDto.fromEntity(entryService.createEntry(entryDto.toEntity(), entryDto.categoryId(), entryDto.tagIds()));
+        String username = identity.isAnonymous() ? null : identity.getPrincipal().getName();
+        return EntryResponseDto.fromEntity(entryService.createEntry(entryDto.toEntity(), entryDto.categoryId(), entryDto.tagIds(), username));
     }
 
     @PUT

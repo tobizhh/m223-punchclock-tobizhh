@@ -1,0 +1,68 @@
+@startuml 06-sequenz-anmelden
+!include _sequenz-style.iuml
+title Punchclock - Sequenzdiagramm: Anmelden (Login mit JWT im HttpOnly-Cookie)
+
+actor Mitarbeiter
+box "Browser" #F2F5FA
+  participant "login.html\n(Formular)" as html
+  participant "script.js" as js
+end box
+box "Quarkus-Backend" #EEF4FD
+  participant ":AuthController" as ctrl
+  participant ":AuthService" as svc
+  participant ":ApplicationUserRepository" as repo
+  participant ":BcryptUtil" as bcrypt
+  participant ":JwtService\n(SmallRye JWT Build)" as jwt
+end box
+database "PostgreSQL\nTabelle application_user" as db
+
+Mitarbeiter -> html : Benutzername und Passwort eingeben\nund «Anmelden» klicken
+html -> js : submit-Event
+activate js
+js -> ctrl : POST /auth/login\nContent-Type: application/json\n{ username, password }
+activate ctrl
+note right of ctrl : @PermitAll: Endpunkt ist\nohne Token erreichbar
+ctrl -> svc : login(username, password)
+activate svc
+svc -> repo : findByUsername(username)
+activate repo
+repo -> db : SELECT id, username, password_hash, role\nFROM application_user WHERE username = ?
+activate db
+db --> repo : Datensatz / leer
+deactivate db
+repo --> svc : Optional<ApplicationUser>
+deactivate repo
+
+opt Benutzer gefunden
+  svc -> bcrypt : matches(password, user.passwordHash)
+  activate bcrypt
+  bcrypt --> svc : true / false
+  deactivate bcrypt
+end
+
+alt Benutzer existiert und Passwort korrekt
+  svc -> jwt : generateToken(user)
+  activate jwt
+  note right of jwt
+    Claims: iss=punchclock, sub=user.id,
+    upn=username, groups=[role],
+    iat, exp = jetzt + 1h, jti
+    Signatur RS256 mit privatem Schlüssel
+  end note
+  jwt --> svc : signiertes JWT
+  deactivate jwt
+  svc --> ctrl : JWT
+  ctrl --> js : 200 OK\nSet-Cookie: jwt=<token>; HttpOnly; Secure;\nSameSite=Strict; Path=/; Max-Age=3600\n{ username, role }
+  js -> js : Benutzername merken\n(Token selbst ist für JS unsichtbar)
+  js -> html : Weiterleitung auf index.html
+  html --> Mitarbeiter : Zeiterfassung wird angezeigt
+else Benutzer unbekannt oder Passwort falsch
+  svc --> ctrl : NotAuthorizedException
+  ctrl --> js : 401 Unauthorized\n(gleiche Meldung für beide Fälle)
+  js -> html : Fehlermeldung anzeigen
+  html --> Mitarbeiter : «Benutzername oder Passwort falsch»
+end
+deactivate svc
+deactivate ctrl
+deactivate js
+@enduml

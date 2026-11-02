@@ -1,0 +1,26 @@
+skinparam defaultFontName "Segoe UI"
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam sequenceMessageAlign left
+skinparam responseMessageBelowArrow true
+skinparam ArrowColor #3F4A5A
+skinparam sequence {
+  LifeLineBorderColor #9AA5B5
+  LifeLineBackgroundColor #DCE8FB
+  ParticipantBackgroundColor #FFFFFF
+  ParticipantBorderColor #5B7DB1
+  ActorBackgroundColor #DCE8FB
+  ActorBorderColor #5B7DB1
+  BoxBorderColor #C9D6EA
+  GroupBorderColor #9AA5B5
+  GroupBackgroundColor #F4F6FA
+}
+skinparam database {
+  BackgroundColor #EEFBF3
+  BorderColor #3F4A5A
+}
+skinparam note {
+  BackgroundColor #FFF8C5
+  BorderColor #D9B600
+}
+autonumber "<b>0."

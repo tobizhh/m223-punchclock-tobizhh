@@ -32,6 +32,10 @@ public class Entry {
     inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags = new HashSet<>();
 
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private ApplicationUser user;
+
   public Long getId() {
     return id;
   }
@@ -70,5 +74,13 @@ public class Entry {
 
   public void setTags(Set<Tag> tags) {
     this.tags = tags;
+  }
+
+  public ApplicationUser getUser() {
+    return user;
+  }
+
+  public void setUser(ApplicationUser user) {
+    this.user = user;
   }
 }

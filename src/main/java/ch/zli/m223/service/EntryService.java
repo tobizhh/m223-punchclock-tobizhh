@@ -7,11 +7,14 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
 
+import ch.zli.m223.model.ApplicationUser;
 import ch.zli.m223.model.Category;
 import ch.zli.m223.model.Entry;
 import ch.zli.m223.model.Tag;
+import ch.zli.m223.repository.ApplicationUserRepository;
 import ch.zli.m223.repository.CategoryRepository;
 import ch.zli.m223.repository.EntryRepository;
 import ch.zli.m223.repository.TagRepository;
@@ -27,10 +30,14 @@ public class EntryService {
     @Inject
     private TagRepository tagRepository;
 
+    @Inject
+    private ApplicationUserRepository userRepository;
+
     @Transactional
-    public Entry createEntry(Entry entry, Long categoryId, List<Long> tagIds) {
+    public Entry createEntry(Entry entry, Long categoryId, List<Long> tagIds, String username) {
         entry.setCategory(findCategory(categoryId));
         entry.setTags(findTags(tagIds));
+        entry.setUser(findUser(username));
         entryRepository.persist(entry);
         return entry;
     }
@@ -59,6 +66,15 @@ public class EntryService {
     public Entry findById(Long id) {
         return entryRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Entry with id " + id + " not found."));
+    }
+
+    private ApplicationUser findUser(String username) {
+        if (username == null) {
+            return null;
+        }
+        // The token is valid, but the user may have been deleted since it was issued.
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new NotAuthorizedException("User " + username + " no longer exists.", "Bearer"));
     }
 
     private Category findCategory(Long categoryId) {

@@ -97,3 +97,47 @@ Content-Type: application/json
   "checkOut": "2026-10-27T09:00:00",
   "categoryId": 999999
 }
+
+### ---------- Authentifizierung ----------
+### Beispielbenutzer werden beim Start angelegt: admin/admin123 (Admin), user/user123 (User)
+
+### Login als admin
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"username": "admin", "password": "admin123"}
+
+### Login als user
+# @name loginUser
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"username": "user", "password": "user123"}
+
+### Login mit falschem Passwort -> 401
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"username": "admin", "password": "falsch"}
+
+### Geschützter Endpunkt ohne Token -> 401
+GET {{baseUrl}}/secure/data
+
+### Geschützter Endpunkt als user -> 403 (Rolle Admin nötig)
+GET {{baseUrl}}/secure/data
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Geschützter Endpunkt als admin -> 200
+GET {{baseUrl}}/secure/data
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### Entry mit Token -> wird dem Benutzer "user" zugeordnet (userId gesetzt)
+POST {{baseUrl}}/entries
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.token}}
+
+{
+  "checkIn": "2026-11-02T08:00:00",
+  "checkOut": "2026-11-02T12:00:00"
+}
